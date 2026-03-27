@@ -170,5 +170,64 @@ La incapacidad de la red para aprender estos patrones se debe principalmente a q
   caption: [Patrones recuperados utilizando como entrada los patrones de entrenamiento.],
 ) <fig:seis>
 
-#bibliography("refs.bib")
+== Capacidad de la red
 
+=== Almacenamiento de patrones pseudoaleatorios
+
+Como primer análisis de la capacidad de una red de Hopfield, se estudió su comportamiento para patrones pseudoaleatorios. En estos experimentos, se realizaron actualizaciones sincrónicas.
+
+El procedimiento fue el siguiente. Se entrena a la red con un patrón pseudoaleatorio, y se verifica que la misma sea capaz de memorizarlo. De ser así, se le enseña a la red un segundo patrón, y se verifican que _ambos_ patrones hayan sido aprendidos. Esto se repite, agergando cada vez más patrones, hasta que se llegue a un límite $p_(max)$ donde la red comience a cometer demasiados errores. Se considera que la red ha aprendido los patrones mostrados si la proporción de bits erróneos entre el total de $N p$ bits es menor a un umbral $P_("error")$.
+
+Análisis teóricos para $N gt.double 1$ y $p gt.double 1$ permiten obtener una expresión para la capacidad, definida como la relación $frac(p_(max), N, style: "horizontal")$ en función del valor de $P_("error")$. En la segunda columna de la @tab:capacidades se muestran algunas capacidades según el umbral de error elegido.
+
+#figure(
+  placement:auto,
+  table(
+    align: left,
+    columns: 3,
+    stroke: none,
+    table.hline(),
+    table.header([$P_("error")$], [$frac(p_(max), N, style: "horizontal")$ @hertz1991], [$frac(hat(p)_(max), N, style: "horizontal")$]),
+    table.hline(),
+    [0.001 ], [0.105], [0.100(15)],
+    [0.0036], [0.138], [0.138(11)],
+    [0.01  ], [0.185], [0.183(8)],
+    [0.05  ], [0.37],  [0.368(8)],
+    [0.1   ], [0.61],  [0.610(9)],
+    table.hline(),
+  ),
+  caption: [Capacidad teórica y estimada de la red para patrones aleatorios.],
+) <tab:capacidades>
+
+Las capacidades $frac(hat(p)_(max), N, style: "horizontal")$ obtenidas experimentalmente, utilizando $N = 200$ y promediando 10 repeticiones diferentes, se muestran en la tercera columna de la @tab:capacidades. También se muestra el desvío estándar de las simulaciones. Se observa que las capacidades estimadas son muy cercanas a las teóricas, coincidiendo dentro de los márgenes de error obtenidos. Vemos que si se desean recuperar patrones aleatorios con una tasa de error en los bits menor al diez porciento, solo se podrán almacenar una cantidad de patrones $p$ más de cinco veces más chica que el número de neuronas utilizadas. Cabe destacar que si los patrones no son perfectamente aleatorios, cosa que suele suceder en la realidad, la capacidad se verá reducida respecto de estos límites teóricos.
+
+=== Almacenamiento de patrones correlacionados
+
+Para estudiar qué ocurre si los patrones a almacenar no son completamente azarosos, se propone el siguiente método para la generación de patrones correlacionados. Se genera en primer lugar un patrón padre $X_i$ pseudoaleatoriamente. Luego, se genera una secuencia $Y^k_i$ de patrones hijos, donde cada bit es igual al correspondiente bit de $X_i$ con probabilidad $p$, o se invierte con probabilidad $1-p$. Los patrones a enseñar, y con los cuales se evaluará la capacidad de la red, son los de la secuencia de hijos.
+
+Una forma equivalente de definir a los $Y^k_i$ es de la siguiente manera:
+$ Y^k_i = Z^k_i X_i, $
+donde
+$ Z^k_i = cases(
+  +1 "con probabilidad" q,
+  -1 "con probabilidad" 1-q,
+). $
+Entonces, como los valores medios de las $Y^k_i$ son nulos y sus desvíos estándar son unitarios, la correlación entre dos patrones $Y^(k_1)_i$ e $Y^(k_2)_i$ estará dada por
+$ rho = EE[Y^(k_1)_i Y^(k_2)_i] = EE[Z^(k_1)_i Z^(k_2)_i (X_i)^2]
+= EE[Z^(k_1)_i Z^(k_2)_i] = EE[Z^(k_1)_i] EE[Z^(k_2)_i] = (2q - 1)^2. $
+Por lo tanto, puede despejarse fácilmente la probabilidad $q$ necesaria para la generación de los patrones hijos en función de la correlación deseada como
+$ q = (sqrt(rho) + 1) / 2. $
+
+En la @fig:correlacionadas se muestra la capacidad de la red estimada para los mismos umbrales de error $P_("error")$ que en la parte anterior, pero variando la correlación entre patrones entre $0.1$ y $0.7$. Se agrega como comparación el valor teórico para el caso descorrelacionado. Notar que se utilizaron diferentes cantidades de neuronas $N$ para cada correlación, con el objetivo de minimizar el tiempo de cómputo, pero obteniendo errores bajos.
+
+Vemos que a medida que la correlación crece, la capacidad de la red se ve sevramente afectada. Por ejemplo, para una correlación entre patrones de $0.7$, la capacidad de la red si se toleran errores en $10 %$ de los bits, es unas diez veces menor que para una tasa estricta de $P_("error") = 0.001$ con una correlación baja ($rho = 0.1$). También se destaca que el decrecimiento de la capacidad es prácticamente exponencial (notar la escala logarítmica) a medida que crece la correlación.
+
+#figure(
+  placement: auto,
+  image("img/correlacionadas.png", width: 100%),
+  caption: [Capacidad estimada de la red en función de la correlación $rho$ entre patrones.],
+) <fig:correlacionadas>
+
+Lo que se deduce de este análisis es que si los patrones son lo suficientemente "parecidos" entre sí, la red es incapaz de aprender cada patrón por separado y los confunde. Una interpretación es que los mínimos de la función energía pasan a estar tan cerca, que los patrones dejan de ser atractores. Además, algunas de las suposiciones que se realizan para simplificar el estudio de la capacidad se ven violadas cuando hay alta correlación, lo que invalida los resultados.
+
+#bibliography("refs.bib")
