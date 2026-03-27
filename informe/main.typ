@@ -42,8 +42,12 @@
 ]
 
 #let sgn = math.op("sgn")
+#let erf = math.op("erf")
 
 = Introducción
+
+== Memorias asociativas y redes de Hopfield
+
 Uno de los problemas más sencillos que pueden resolver las redes neuronales es el de la *memoria asociativa*. El entrenamiento consiste de guardar un conjunto de patrones en la red. Cuando se presenta uno nuevo, la red debe ser capaz de responder con el patrón guardado que más se asemeje al mostrado @hertz1991.
 
 Una red de Hopfield es una *memoria asociativa direccionable por contenido* (_content addressable associative memory_). Este tipo de memoria es capaz de recordar todo el contenido aprendido sobre un patrón en particular, partiendo de información parcial o con errores en la entrada @hopfield1982. Por ejemplo, una red de este estilo entrenada con imágenes de rostros humanos sería capaz de recordar una cara completa a partir de otra imagen donde unos lentes de sol cubren los ojos.
@@ -54,6 +58,8 @@ $ x_i = g(sum_j w_(i j) x_j - mu_i). $
 En el caso particular de las redes de Hopfield, la función no lineal es el signo, y el término constante $mu_i$ puede ignorarse. La salida de una neurona es entonces
 $ x_i = sgn(sum_j w_(i j) x_j). $ <output>
 Notar que las salidas de cada neurona valdrán $1$ o $-1$. La red contiene $N$ neuronas como estas, y todas se encuentran conectadas con las demás excepto consigo mismas ($w_(i i) = 0$ para todo $i$). En analogía con el término biológico, a las conexiones entre neuronas se las llama *sinapsis*.
+
+== Entrenamiento y ejecución de una red de Hopfield
 
 El objetivo del entrenamiento es que la red aprenda una cantidad $p$ de patrones denominados $xi_i^mu$. El entrenamiento se hace utilizando la *regla de Hebb generalizada*, que consiste en reforzar las sinapsis entre neuronas cuya activación está correlacionada positivamente (disparan a la vez, o se encuentran apagadas a la vez), y en debilitar las conexiones con correlaciones negativas (si una dispara, la otra no). Computacionalmente, cada peso $w_(i j)$ se establece inicialmente en cero ($w_(i j) := 0$). Se itera para cada valor $1 <= mu <= p$, y se actualizan los pesos según la siguiente expresión
 $ w_(i j) := w_(i j) + eta xi_i^mu xi_j^mu. $ <hebb>
@@ -67,6 +73,16 @@ Además, notar que @weights es simétrica entre $i$ y $j$, por lo que $w_(i j) =
 Para recuperar un patrón de la memoria a partir de un patrón de entrada $zeta_i$, una forma de hacerlo es asincrónicamente. En cada iteración, se elige una neurona $i$ al azar, y se calcula su nueva salida utilizando la regla @output. Se continúa iterando hasta que ninguna de las $N$ neuronas cambia su salida $x_i$ tras aplicar dicha regla. Idealmente, la red convergerá al patrón $xi_i^mu$ que más se asemeja a la entrada $zeta_i$. Cada patrón entrenado formará un *atractor*, al menos en el caso que $p << N$ y los $xi_i^mu$ estén descorrelacionados entre sí. Los patrones de entrada que se encuentren cerca de un atractor tenderán hacia él al aplicar sucesivamente la regla de actualización.
 
 Cabe destacar que los patrones de entrenamiento no son los únicos atractores. La red presenta *estados espurios*, a los que también puede converger la red si empieza cerca de uno. Por empezar, por la simetría en la representación, los estados inversos $-xi_i^mu$ son atractores. Además, todas las combinaciones lineales de un número impar de estados son atractores. Finalmente, si el número de estados guardados $p$ es muy grande, también aparecen _spin glass states_, que son estados espurios no formados por una combinación lineal de los $xi_i^mu$. Afortunadamente, estos últimos suelen tener regiones de atracción pequeñas @hertz1991.
+
+La otra forma de actualización se denomina sincrónica. Esta consiste en actualizar la salida de todas las neuronas utilizando la regla @output para cada una. En este caso, puede buscarse que la red recupere el patrón en una sola iteración, es decir, una única actualización de todas las neuronas.
+
+== Capacidad de la red <sec:capacidad>
+
+La *capacidad de la red* es la cantidad de patrones que puede almacenar y recuperar una red sin cometer ningún error, o cometiendo una cantidad limitada de errores. Generalmente, se expresa en forma de proporción como el número de patrones $p_(max)$ almacenable, dividido por el tamaño de la red, es decir, su cantidad $N$ de neuronas.
+
+Para simplificar el estudio, se analiza el caso en el que los patrones son puramente aleatorios, es decir, donde cada bit es $+1$ o $-1$ con igual probabilidad e independiente del resto. Además, se considera una única iteración de actualización sincrónica. Se puede demostrar @hertz1991 que para $N gt.double 1$ y $p gt.double 1$, la probabilidad $P_("error")$ de que un dado bit sea inestable (se recupere invertido) está dada por
+$ P_("error") = 1/2 [1 - erf(sqrt(N/(2p)))]. $
+Por ejemplo, si se desea que cada bit se recupere correctamente con un $99%$ de probabilidad ($P_("error") = 0.01$), la red será en teoría capaz de almacenar hasta $p_(max) = 0.185 N$ patrones, suponiendo $N$ grande.
 
 = Desarrollo
 
@@ -172,11 +188,11 @@ La incapacidad de la red para aprender estos patrones se debe principalmente a q
 
 == Capacidad de la red
 
+En esta sección se analiza la capacidad de almancenamiento de las redes de Hopfield, utilizando únicamente patrones generados aleatoriamente. Los experimentos se realizaron con actualizaciones sincrónicas de todas las neuronas. Se hizo una única iteración sincrónica, para comparar con los resultados teóricos esperados que se mencionaron en la @sec:capacidad.
+
 === Almacenamiento de patrones pseudoaleatorios
 
-Como primer análisis de la capacidad de una red de Hopfield, se estudió su comportamiento para patrones pseudoaleatorios. En estos experimentos, se realizaron actualizaciones sincrónicas.
-
-El procedimiento fue el siguiente. Se entrena a la red con un patrón pseudoaleatorio, y se verifica que la misma sea capaz de memorizarlo. De ser así, se le enseña a la red un segundo patrón, y se verifican que _ambos_ patrones hayan sido aprendidos. Esto se repite, agergando cada vez más patrones, hasta que se llegue a un límite $p_(max)$ donde la red comience a cometer demasiados errores. Se considera que la red ha aprendido los patrones mostrados si la proporción de bits erróneos entre el total de $N p$ bits es menor a un umbral $P_("error")$.
+Como primer análisis de la capacidad de una red de Hopfield, se estudió su comportamiento para patrones pseudoaleatorios independientes. El procedimiento fue el siguiente. Se entrena a la red con un patrón pseudoaleatorio, y se verifica que la misma sea capaz de memorizarlo. De ser así, se le enseña a la red un segundo patrón, y se verifican que _ambos_ patrones hayan sido aprendidos. Esto se repite, agergando cada vez más patrones, hasta que se llegue a un límite $p_(max)$ donde la red comience a cometer demasiados errores. Se considera que la red ha aprendido los patrones mostrados si la proporción de bits erróneos entre el total de $N p$ bits es menor a un umbral $P_("error")$.
 
 Análisis teóricos para $N gt.double 1$ y $p gt.double 1$ permiten obtener una expresión para la capacidad, definida como la relación $frac(p_(max), N, style: "horizontal")$ en función del valor de $P_("error")$. En la segunda columna de la @tab:capacidades se muestran algunas capacidades según el umbral de error elegido.
 
