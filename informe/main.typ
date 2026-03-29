@@ -246,4 +246,29 @@ Vemos que a medida que la correlación crece, la capacidad de la red se ve sevra
 
 Lo que se deduce de este análisis es que si los patrones son lo suficientemente "parecidos" entre sí, la red es incapaz de aprender cada patrón por separado y los confunde. Una interpretación es que los mínimos de la función energía pasan a estar tan cerca, que los patrones dejan de ser atractores. Además, algunas de las suposiciones que se realizan para simplificar el estudio de la capacidad se ven violadas cuando hay alta correlación, lo que invalida los resultados.
 
+== Eliminación aleatoria de interconexiones
+
+=== Efectos sobre el error de recupero
+
+=== Efectos sobre la capacidad de la red
+
+#figure(
+  placement:auto,
+  table(
+    align: left,
+    columns: 2,
+    stroke: none,
+    table.hline(),
+    table.header([$p_("desc")$], [$frac(hat(p)_(max), N, style: "horizontal")$]),
+    table.hline(),
+      [0.010], [0.186(8)],
+      [0.100], [0.173(48)],
+      [0.300], [0.133(84)],
+      [0.750], [0.037(74)],
+      [0.900], [0.017(55)],
+    table.hline(),
+  ),
+  caption: [Capacidad estimada de la red para diferentes probabilidades de desconexión entre neuronas.],
+) <tab:desconexiones>
+
 #bibliography("refs.bib")
