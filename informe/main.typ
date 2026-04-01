@@ -250,6 +250,27 @@ Lo que se deduce de este análisis es que si los patrones son lo suficientemente
 
 === Efectos sobre el error de recupero
 
+
+
+#figure(
+  placement:auto,
+  table(
+    align: left,
+    columns: 2,
+    stroke: none,
+    table.hline(),
+    table.header([$p_("desc")$], [$P_("error")$]),
+    table.hline(),
+      [0.010], [0.010(73)],
+      [0.100], [0.060(164)],
+      [0.300], [0.140(225)],
+      [0.750], [0.359(225)],
+      [0.900], [0.458(142)],
+    table.hline(),
+  ),
+  caption: [Error de recupero para diferentes probabilidades de desconexión entre neuronas.],
+) <tab:desconexiones-err>
+
 === Efectos sobre la capacidad de la red
 
 #figure(
@@ -261,14 +282,14 @@ Lo que se deduce de este análisis es que si los patrones son lo suficientemente
     table.hline(),
     table.header([$p_("desc")$], [$frac(hat(p)_(max), N, style: "horizontal")$]),
     table.hline(),
-      [0.010], [0.186(8)],
-      [0.100], [0.173(48)],
-      [0.300], [0.133(84)],
-      [0.750], [0.037(74)],
-      [0.900], [0.017(55)],
+      [0.010], [0.187(07)],
+      [0.100], [0.165(58)],
+      [0.300], [0.128(86)],
+      [0.750], [0.044(79)],
+      [0.900], [0.013(47)],
     table.hline(),
   ),
-  caption: [Capacidad estimada de la red para diferentes probabilidades de desconexión entre neuronas.],
-) <tab:desconexiones>
+  caption: [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.],
+) <tab:desconexiones-cap>
 
 #bibliography("refs.bib")
