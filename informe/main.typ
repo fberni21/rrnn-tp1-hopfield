@@ -292,4 +292,12 @@ Lo que se deduce de este análisis es que si los patrones son lo suficientemente
   caption: [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.],
 ) <tab:desconexiones-cap>
 
+
+#figure(
+  placement: auto,
+  image("img/desconexion.png", width: 100%),
+  caption: [Probabilidad de error (a capacidad fija) y capacidad relativa (a tasa de error fija) en función de la probabilidad de desconexión entre neuronas.],
+) <fig:desconexion>
+
+
 #bibliography("refs.bib")
