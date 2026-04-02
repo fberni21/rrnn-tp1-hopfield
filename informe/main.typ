@@ -44,8 +44,8 @@
 
 #align(center)[
     Franco Berni \
-    110007 \
     #link("mailto:fberni@fi.uba.ar")
+    110007 \
 ]
 
 #let sgn = math.op("sgn")
@@ -331,9 +331,9 @@ Los resultados se tabulados en la @tab:desconexiones-cap, y graficados en conjun
 
 === Efectos sobre la energía
 
-Finalmente, se calculó cómo varía la energía de la red durante las actualizaciones _asincrónicas_ para diferentes $p_("disc")$. El análisis se hizo sobre una red con $N=200$ y $p=10$, y se varió la probabilidad de desconectar neuronas entre $0.0$ y $0.5$, en pasos de $0.1$. Se calculó la energía del patrón, partiendo de una versión alterada de uno de los patrones aprendidos, a medida que se iba actualizando la red. La energía se calculó según @energia.
+Finalmente, se calculó cómo varía la energía de la red durante las actualizaciones _asincrónicas_ para diferentes $p_("disc")$. El análisis se hizo sobre una red con $N=200$ y $p=10$, y se varió la probabilidad de desconectar neuronas entre $0.0$ y $0.5$, en pasos de $0.1$. Se calculó la energía del patrón, partiendo de un patrón aleatorio, a medida que se iba actualizando la red. La energía se calculó según @energia.
 
-El resultado se encuentra graficado en la @fig:energia. Se observa que para probabilidades de desconexión bajas, la red converge a prácticamente el mismo mínimo de energía sin importar cuántas neuronas se desconectan. Lo que varía es la velocidad de convergencia, que tiende a ser más lenta cuantas más sinapsis se pierden. Lo notable es que la red se "rompe" a prtir de una $p_("disc") approx 0.5$, donde la cantidad de neuronas desconectadas es tan grande que el cálculo de la energía es nulo y nunca decrece.
+El resultado se encuentra graficado en la @fig:energia. Se observa que para probabilidades de desconexión bajas, la red converge a valores similares de energía sin importar cuántas neuronas se desconectan, aunque no lo hace a exactamente el mismo valor. Lo que varía es la velocidad de convergencia, que tiende a ser más lenta cuantas más sinapsis se pierden (con la excepción de $p_("disc")=0.2$, que probablemente sea una cuestión de azar). Para una probabilidad más alta de desconexión, la red converge a un mínimo de mayor energía, donde se nota que comienza a fallar con mayor frecuencia. Lo notable es que la red se "rompe" a prtir de una $p_("disc") approx 0.4$, donde la cantidad de neuronas desconectadas es tan grande que el cálculo de la energía es nulo y nunca decrece.
 
 #figure(
   placement: auto,
