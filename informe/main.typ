@@ -1,11 +1,18 @@
 #set page(
   paper: "a4",
-  // margin: (x: 1.8cm, y: 1.5cm),
+  margin: (x: 2.5cm, y: 2cm),
   numbering: "1",
+  header: context {
+    if counter(page).get().first() > 1 [
+      _Franco Berni_
+      #h(1fr)
+      TP1: Redes de Hopfield
+    ]
+  }
 )
 #set text(
   font: "New Computer Modern",
-  size: 11pt,
+  size: 10pt,
   lang: "es",
   region: "AR",
 )
@@ -13,7 +20,7 @@
   justify: true,
 )
 
-#set heading(numbering: "I 1.a.")
+#set heading(numbering: "1.")
 #set math.equation(numbering: "(1)")
 #set figure(numbering: "1")
 
@@ -82,7 +89,18 @@ La *capacidad de la red* es la cantidad de patrones que puede almacenar y recupe
 
 Para simplificar el estudio, se analiza el caso en el que los patrones son puramente aleatorios, es decir, donde cada bit es $+1$ o $-1$ con igual probabilidad e independiente del resto. Además, se considera una única iteración de actualización sincrónica. Se puede demostrar @hertz1991 que para $N gt.double 1$ y $p gt.double 1$, la probabilidad $P_("error")$ de que un dado bit sea inestable (se recupere invertido) está dada por
 $ P_("error") = 1/2 [1 - erf(sqrt(N/(2p)))]. $
-Por ejemplo, si se desea que cada bit se recupere correctamente con un $99%$ de probabilidad ($P_("error") = 0.01$), la red será en teoría capaz de almacenar hasta $p_(max) = 0.185 N$ patrones, suponiendo $N$ grande.
+Por ejemplo, si se desea que cada bit se recupere correctamente con un 99 % de probabilidad ($P_("error") = 0.01$), la red será en teoría capaz de almacenar hasta $p_(max) = 0.185 N$ patrones, suponiendo $N$ grande.
+
+La probabilidad de error de bits se puede estimar como la relación entre la cantidad de bits que se recuperan con error, partiendo de cada patrón enseñado, respecto del total de bits almacenados en la red. Es decir,
+$ hat(P)_("error") = ("# bits erróneos") / (N p) . $ <eq:errores>
+
+== Energía de la red
+
+Hopfield @hopfield1982 introdujo el concepto de energía de la red para analizar su comportamiento. En particular, la red de Hopfield tiene una energía $H$ dada por
+$ H = - 1/2 sum_(i j) w_(i j) x_i x_j = -1/2 bold(x) bold(w) bold(x)^T. $ <energia>
+Esta energía existe únicamente si las conexiones de la red son simétricas, es decir, si $w_(i j) = w_(j i)$, cosa que ocurre si se establecen los pesos usando @hebb.
+
+Se puede demostrar @hertz1991 que la energía siempre decrece (o permanece constante) cuando se actualiza la red utilizando la regla @output. Por lo tanto, la actualización convergerá a un mínimo local de la energía. Además, si la red no está demasiado "llena", puede demostrarse que los patrones enseñados se ubican exactamente en mínimos locales de $H$, por lo que se garantiza que la actualización convergerá a alguno de los patrones aprendidos #footnote[O a alguno de los patrones espurios.], idealmente al más parecido.
 
 = Desarrollo
 
@@ -236,11 +254,11 @@ $ q = (sqrt(rho) + 1) / 2. $
 
 En la @fig:correlacionadas se muestra la capacidad de la red estimada para los mismos umbrales de error $P_("error")$ que en la parte anterior, pero variando la correlación entre patrones entre $0.1$ y $0.7$. Se agrega como comparación el valor teórico para el caso descorrelacionado. Notar que se utilizaron diferentes cantidades de neuronas $N$ para cada correlación, con el objetivo de minimizar el tiempo de cómputo, pero obteniendo errores bajos.
 
-Vemos que a medida que la correlación crece, la capacidad de la red se ve sevramente afectada. Por ejemplo, para una correlación entre patrones de $0.7$, la capacidad de la red si se toleran errores en $10 %$ de los bits, es unas diez veces menor que para una tasa estricta de $P_("error") = 0.001$ con una correlación baja ($rho = 0.1$). También se destaca que el decrecimiento de la capacidad es prácticamente exponencial (notar la escala logarítmica) a medida que crece la correlación.
+Vemos que a medida que la correlación crece, la capacidad de la red se ve sevramente afectada. Por ejemplo, para una correlación entre patrones de $0.7$, la capacidad de la red si se toleran errores en 10 % de los bits, es unas diez veces menor que para una tasa estricta de $P_("error") = 0.001$ con una correlación baja ($rho = 0.1$). También se destaca que el decrecimiento de la capacidad es prácticamente exponencial (notar la escala logarítmica) a medida que crece la correlación.
 
 #figure(
   placement: auto,
-  image("img/correlacionadas.png", width: 100%),
+  image("img/correlacionadas.png", width: 80%),
   caption: [Capacidad estimada de la red en función de la correlación $rho$ entre patrones.],
 ) <fig:correlacionadas>
 
@@ -248,56 +266,79 @@ Lo que se deduce de este análisis es que si los patrones son lo suficientemente
 
 == Eliminación aleatoria de interconexiones
 
+Para mostrar que la red es un sistema complejo que es robusto a cierta cantidad de fallos en las partes que la componen ---sus neuronas---, analizamos cómo se comporta la red de Hopfield cuando se eliminan algunas sinapsis. Para ello, se agregó a la red un parámetro que determina una probabilidad de que cada sinapsis falle, es decir, se establezca en cero.
+
 === Efectos sobre el error de recupero
 
+Lo primero que se estudió fue el efecto de las desconexiones sobre el error de recupero de patrones. Para ello, se construyó una red con $N=300$ y $p=30$ (capacidad del 10 %), y se evaluó la tasa de error para recuperar todos los patrones usando @eq:errores, para diferentes probabilidades $p_("disc")$ de desconexión.
 
+Los resultados crudos se muestran en la @tab:desconexiones-err, y están graficados en la @fig:desconexiones (azul, círculos). Se observa un aumento prácticamente lineal de la tasa de error a medida que incrementa la probabilidad de desconexión entre neuronas. Es decir, la falla de algunas sinapsis no produce un colapso inmediato de la capacidad de la red de recordar, sino que la degrada lentamente.
 
-#figure(
-  placement:auto,
-  table(
-    align: left,
-    columns: 2,
-    stroke: none,
-    table.hline(),
-    table.header([$p_("desc")$], [$P_("error")$]),
-    table.hline(),
+#grid(columns: 2, gutter: 1em,
+grid.cell([
+  #figure(
+    placement:auto,
+    table(
+      align: left,
+      columns: 2,
+      stroke: none,
+      table.hline(),
+      table.header([$p_("disc")$], [$P_("error")$]),
+      table.hline(),
       [0.010], [0.010(73)],
       [0.100], [0.060(164)],
       [0.300], [0.140(225)],
       [0.750], [0.359(225)],
       [0.900], [0.458(142)],
-    table.hline(),
-  ),
-  caption: [Error de recupero para diferentes probabilidades de desconexión entre neuronas.],
-) <tab:desconexiones-err>
-
-=== Efectos sobre la capacidad de la red
-
-#figure(
-  placement:auto,
-  table(
-    align: left,
-    columns: 2,
-    stroke: none,
-    table.hline(),
-    table.header([$p_("desc")$], [$frac(hat(p)_(max), N, style: "horizontal")$]),
-    table.hline(),
+      table.hline(),
+    ),
+    caption: [Error de recupero para diferentes probabilidades de desconexión entre neuronas.],
+  ) <tab:desconexiones-err>
+]),
+grid.cell([
+  #figure(
+    placement:auto,
+    table(
+      align: left,
+      columns: 2,
+      stroke: none,
+      table.hline(),
+      table.header([$p_("desc")$], [$frac(hat(p)_(max), N, style: "horizontal")$]),
+      table.hline(),
       [0.010], [0.187(07)],
       [0.100], [0.165(58)],
       [0.300], [0.128(86)],
       [0.750], [0.044(79)],
       [0.900], [0.013(47)],
-    table.hline(),
-  ),
-  caption: [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.],
-) <tab:desconexiones-cap>
-
+      table.hline(),
+    ),
+    caption: [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.],
+  ) <tab:desconexiones-cap>
+])
+)
 
 #figure(
   placement: auto,
-  image("img/desconexion.png", width: 100%),
+  image("img/desconexion.png", width: 65%),
   caption: [Probabilidad de error (a capacidad fija) y capacidad relativa (a tasa de error fija) en función de la probabilidad de desconexión entre neuronas.],
-) <fig:desconexion>
+) <fig:desconexiones>
 
+=== Efectos sobre la capacidad de la red
+
+El segundo experimento consistió en analizar cómo varía la capacidad de la red en función de $p_("disc")$. Esto se hizo para una red con $N=300$ y calculando la capacidad $p_(max)/N$ para $P_("error") = 0.01$, variando $p_("disc")$.
+
+Los resultados se tabulados en la @tab:desconexiones-cap, y graficados en conjunto con las probabilidades de error en la @fig:desconexiones (rojo, cruces). Se observa el comportamiento exactamente opuesto a la probabilidad de error, con la capacidad decreciendo en forma prácticamente lineal a medida que se pierden sinapsis. Nuevamente, hay cierta robustez en la red ya que la capacidad no cae abruptamente con las fallas, sino en forma suave.
+
+=== Efectos sobre la energía
+
+Finalmente, se calculó cómo varía la energía de la red durante las actualizaciones _asincrónicas_ para diferentes $p_("disc")$. El análisis se hizo sobre una red con $N=200$ y $p=10$, y se varió la probabilidad de desconectar neuronas entre $0.0$ y $0.5$, en pasos de $0.1$. Se calculó la energía del patrón, partiendo de una versión alterada de uno de los patrones aprendidos, a medida que se iba actualizando la red. La energía se calculó según @energia.
+
+El resultado se encuentra graficado en la @fig:energia. Se observa que para probabilidades de desconexión bajas, la red converge a prácticamente el mismo mínimo de energía sin importar cuántas neuronas se desconectan. Lo que varía es la velocidad de convergencia, que tiende a ser más lenta cuantas más sinapsis se pierden. Lo notable es que la red se "rompe" a prtir de una $p_("disc") approx 0.5$, donde la cantidad de neuronas desconectadas es tan grande que el cálculo de la energía es nulo y nunca decrece.
+
+#figure(
+  placement: auto,
+  image("img/energia.png", width: 80%),
+  caption: [Energía de la red durante la actualización sincrónica para diferentes probabilidades de desconexión entre neuronas.],
+) <fig:energia>
 
 #bibliography("refs.bib")
