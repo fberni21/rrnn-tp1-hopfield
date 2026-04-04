@@ -20,6 +20,8 @@
   justify: true,
 )
 
+#show heading: smallcaps
+#show heading: set text(weight: "regular")
 #set heading(numbering: "1.")
 #set math.equation(numbering: "(1)")
 #set figure(numbering: "1")
@@ -36,20 +38,26 @@
 
 #set document(title: [Trabajo Práctico 1: Redes de Hopfield])
 
+#show title: smallcaps
 #show title: set text(size: 17pt)
-#show title: set align(center)
-#show title: set block(below: 1.2em)
-
-#title()
 
 #align(center)[
-    Franco Berni \
-    #link("mailto:fberni@fi.uba.ar")
-    110007 \
+  #image("img/fiuba.png", width: 60%)
+
+  #title()
+
+  Franco Berni \
+  #link("mailto:fberni@fi.uba.ar") \
+  110007
 ]
+
+#v(2em)
+#align(center)[#smallcaps[Resumen]]
+#text(style: "italic")[Este informe analiza el desempeño de las redes de Hopfield como memorias asociativas direccionables por contenido. Se demuestra la capacidad de la red para recuperar patrones complejos ---principalmente imágenes binarias---, a partir de información parcial o bajo la presencia de ruido. Los resultados muestran una tolerancia a fallas en la red, donde la falla en las sinapsis produce un deterioro gradual de la capacidad de recordar y un aumento en la tasa de error, pero no un colapso inmediato de su funcionamiento. Se evalúa numéricamente el efecto negativo de la similitud entre patrones sobre la capacidad de almacenamiento, y también se estudia el comportamiento de la red utilizando una función de energía.]
 
 #let sgn = math.op("sgn")
 #let erf = math.op("erf")
+
 
 = Introducción
 
@@ -230,7 +238,7 @@ Análisis teóricos para $N gt.double 1$ y $p gt.double 1$ permiten obtener una 
     [0.1   ], [0.61],  [0.610(9)],
     table.hline(),
   ),
-  caption: [Capacidad teórica y estimada de la red para patrones aleatorios.],
+  caption: figure.caption(position: top, [Capacidad teórica y estimada de la red para patrones aleatorios.]),
 ) <tab:capacidades>
 
 Las capacidades $frac(hat(p)_(max), N, style: "horizontal")$ obtenidas experimentalmente, utilizando $N = 200$ y promediando 10 repeticiones diferentes, se muestran en la tercera columna de la @tab:capacidades. También se muestra el desvío estándar de las simulaciones. Se observa que las capacidades estimadas son muy cercanas a las teóricas, coincidiendo dentro de los márgenes de error obtenidos. Vemos que si se desean recuperar patrones aleatorios con una tasa de error en los bits menor al diez porciento, solo se podrán almacenar una cantidad de patrones $p$ más de cinco veces más chica que el número de neuronas utilizadas. Cabe destacar que si los patrones no son perfectamente aleatorios, cosa que suele suceder en la realidad, la capacidad se verá reducida respecto de estos límites teóricos.
@@ -274,7 +282,7 @@ Lo primero que se estudió fue el efecto de las desconexiones sobre el error de 
 
 Los resultados crudos se muestran en la @tab:desconexiones-err, y están graficados en la @fig:desconexiones (azul, círculos). Se observa un aumento prácticamente lineal de la tasa de error a medida que incrementa la probabilidad de desconexión entre neuronas. Es decir, la falla de algunas sinapsis no produce un colapso inmediato de la capacidad de la red de recordar, sino que la degrada lentamente.
 
-#grid(columns: 2, gutter: 1em,
+#grid(columns: 2, gutter: 1.5em,
 grid.cell([
   #figure(
     placement:auto,
@@ -292,7 +300,7 @@ grid.cell([
       [0.900], [0.458(142)],
       table.hline(),
     ),
-    caption: [Error de recupero para diferentes probabilidades de desconexión entre neuronas.],
+    caption: figure.caption(position: top, [Error de recupero para diferentes probabilidades de desconexión entre neuronas.]),
   ) <tab:desconexiones-err>
 ]),
 grid.cell([
@@ -312,7 +320,7 @@ grid.cell([
       [0.900], [0.013(47)],
       table.hline(),
     ),
-    caption: [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.],
+    caption: figure.caption(position: top, [Capacidad de la red para diferentes probabilidades de desconexión entre neuronas.]),
   ) <tab:desconexiones-cap>
 ])
 )
@@ -335,10 +343,20 @@ Finalmente, se calculó cómo varía la energía de la red durante las actualiza
 
 El resultado se encuentra graficado en la @fig:energia. Se observa que para probabilidades de desconexión bajas, la red converge a valores similares de energía sin importar cuántas neuronas se desconectan, aunque no lo hace a exactamente el mismo valor. Lo que varía es la velocidad de convergencia, que tiende a ser más lenta cuantas más sinapsis se pierden (con la excepción de $p_("disc")=0.2$, que probablemente sea una cuestión de azar). Para una probabilidad más alta de desconexión, la red converge a un mínimo de mayor energía, donde se nota que comienza a fallar con mayor frecuencia. Lo notable es que la red se "rompe" a prtir de una $p_("disc") approx 0.4$, donde la cantidad de neuronas desconectadas es tan grande que el cálculo de la energía es nulo y nunca decrece.
 
+Como observación, hay que tener en cuenta que no es esctrictamente correcto calcular la energía de la red tras realizar desconexiones al azar en las neuronas. Como se menciona en la página 22 de @hertz1991, la energía de una red solo está bien definida si la matriz de pesos es simétrica. Al hacer algunos de los pesos nulos en forma aleatoria, esta propiedad no tiene por qué mantenerse.
+
 #figure(
   placement: auto,
   image("img/energia.png", width: 80%),
   caption: [Energía de la red durante la actualización sincrónica para diferentes probabilidades de desconexión entre neuronas.],
 ) <fig:energia>
+
+= Conclusiones
+
+El desarrollo de este trabajo permitió comprender el funcionamiento de las memorias asociativas direccionables por contenido en general, así como la red de Hopfield como implementación particular. Se verificó la propiedad emergente de la red para recordar patrones, así como su habilidad para recuperar lo almacenado a partir de información parcial. Se estudió experimentalme la capacidad de la red para almacenar patrones pseudoaleatorios, y se compararon los resultados con análisis teóricos, obteniendo una concordancia muy buena entre ambos. Se observó cómo la correlación entre patrones afecta notoriamente la capacidad de almacenamiento de la red, debido a que la misma se vuelve incapaz de distinguir información similar. Es remarcable la caída prácticamente exponencial de la capacidad respecto de la correlación. Además, se observó la aparición de estados espurios, constituidos como la combinación de un número impar de patrones. Estos atractores indeseados dificultan la tarea de recuperar algunos patrones cuando la entrada está muy alterada.
+
+También se estudió a la red como sistema complejo. Se verificó que la eliminación de conexiones entre neuronas no causa un colapso inmediato de su capacidad de aprender. Es decir, no se necesita del perfecto funcionamiento de todas las sinapsis para que la red funcione, sino que la pérdida de conexiones solo causa un deterioro gradual en la recuperación de información y una caída lenta de la capacidad. Esto se contrasta con un sistema complicado donde sus diversas partes necesitan mutuamente del funcionamiento de las demás, y una falla localizada causa un completo colapso del sistema. La tolerancia a errores es una cualidad muy valiosa de las redes de Hopfield.
+
+Como último experimento se evaluó el efecto sobre la energía tras remover algunas conexiones. A medida que la red tiene más fallas, la energía deja de asentarse en el mínimo esperado para la red completa, hasta que a partir de cierto punto falla por completo y la energía se vuelve constantemente nula y no decreciente. El hecho de que este fallo no ocurra inmediatamente, para poca cantidad de desconexiones, es nuevamente señal de la tolerancia a fallas que presenta este tipo de sistemas.
 
 #bibliography("refs.bib")
